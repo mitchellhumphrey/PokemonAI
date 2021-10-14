@@ -12,10 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-addon-api": "^4.2.0"
+    "axios": "^0.23.0",
+    "node-addon-api": "^4.2.0",
+    "ws": "^8.2.3"
   },
   "gypfile": true,
   "devDependencies": {
     "jest": "^27.2.5"
-  }
+  },
+  "type": "module"
 }

@@ -1,2 +1,3 @@
-const main = require('./src/main');
-main.main()
+import main from './src/main.js';
+
+main()

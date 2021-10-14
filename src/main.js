@@ -5,6 +5,8 @@ import axios from 'axios';
 import { WebSocket } from 'ws';
 import parser from './parser.js';
 
+import dotenv from 'dotenv';
+dotenv.config()
 const testAddon = require('../build/Release/testaddon.node');
 
 export default async () => {
@@ -45,8 +47,8 @@ export default async () => {
             let response = await axios.post("https://play.pokemonshowdown.com/action.php",
                 {
                     "act": "login",
-                    "name": "PotatoBotAI",
-                    "pass": "M1tch311",
+                    "name": process.env.SHOWDOWN_USERNAME,
+                    "pass": process.env.SHOWDOWN_PASSWORD,
                     "challstr": message.slice(9)
                 }
             )

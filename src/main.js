@@ -25,17 +25,46 @@ export default async () => {
 
     showdown.on("request", (p1) => {
         console.log("REQUEST EMITTER");
+        showdown.ws.send(showdown.room + "|/inactive")
         if (p1 !== '') {
-            // let choice = 
-            // console.log(choice);
-            const result = testAddon.startPoint(p1);
+            const result = testAddon.startPoint(showdown.state);
             if (result !== '') {
                 showdown.ws.send(showdown.room + testAddon.startPoint(p1));
             }
 
         }
     })
-    showdown.on("faint", (pkmn) => {
-        showdown.ws.send(showdown.room + "|/request")
+
+    showdown.on("forceSwitch", (data) => {
+
+        let stateObj = JSON.parse(data);
+        let aliveMons = [];
+        for (let x of stateObj.side.pokemon) {
+            if (x.condition !== "0 fnt") {
+                aliveMons.push(x);
+            }
+        }
+        showdown.ws.send(showdown.room + "|/switch " + aliveMons[Math.floor(Math.random() * aliveMons.length)].ident.slice(4));
     })
+
+    showdown.on("error", () => {
+        const result = testAddon.startPoint(showdown.state);
+        if (result !== '') {
+            showdown.ws.send(showdown.room + testAddon.startPoint(showdown.state));
+        }
+    })
+
+
+    showdown.on("faint", (pkmn) => {
+        console.log("fainted my mon");
+    })
+
+    showdown.on("win", () => {
+        showdown.search("gen8randombattle");
+    })
+
+    showdown.on("loss", () => {
+        showdown.search("gen8randombattle");
+    })
+
 }

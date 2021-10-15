@@ -14,7 +14,8 @@ export default class showdownManager extends EventEmitter {
     constructor(ws) {
         super();
         this.ws = ws
-        this.room = '';
+        this.room;
+        this.side;
 
         this.on('challstr', async (challstr) => {
             console.log("verifying login")
@@ -35,81 +36,45 @@ export default class showdownManager extends EventEmitter {
         })
 
         this.ws.onmessage = async (event) => {
-            console.log(event.data);
-            let commands = [];
-            let message = "";
-            let parameters = 0;
-            let tempParameters = [];
-            let tempCommand = "";
-            let roomFlag = false;
 
-            for (let x of event.data) {
 
-                if (x !== '|' && x !== '>' && !roomFlag) {
-                    if (x !== '\n') {
-                        message += x;
+            let test = event.data.split("\n")
+            console.log(test);
+            for (let x of test) {
+                if (x.startsWith("|challstr")) {
+                    this.emit("challstr", x.slice(10)); //the slice removes the |challstr| from the message
+                }
+                else if (x.startsWith(">")) {
+                    this.room = x.slice(1);
+                }
+                // else if (x.startsWith("|player")) {
+                //     this.side = x.slice(8, 10)
+                //     console.log(this.side);
+                // }
+                else if (x.startsWith("|request")) {
+                    if ("wait" in JSON.parse(x.slice(9))) {
                     }
-
-                }
-                else if (x === '>') {
-                    this.room = "";
-                    roomFlag = true;
-                }
-                else if (roomFlag) {
-                    if (x !== '\n') {
-                        this.room += x
+                    else if ("forceSwitch" in JSON.parse(x.slice(9))) {
+                        this.emit("forceSwitch", x.slice(9));
                     }
                     else {
-                        roomFlag = false;
+                        this.side = JSON.parse(x.slice(9)).side.id;
+                        this.state = x.slice(9)
+                        this.emit("request", x.slice(9))
                     }
-
+                    console.log(x.slice(9))
                 }
-                else {
-                    if (parameters === 0) {
-                        if (message === "challstr") {
-                            parameters = 2;
-                            tempCommand = "challstr";
-                        }
-                        else if (message === "request") {
-                            parameters = 1;
-                            tempCommand = "request";
-                        }
-                        message = "";
-                    }
-                    else {
-                        tempParameters.push(message);
-                        message = ""
-
-
-                        if (parameters === 0) {
-                            commands.push(new messageWithParams(tempCommand, tempParameters));
-                            tempParameters = [];
-                            tempCommand = "";
-                        }
-                        parameters -= 1;
-                    }
-
+                else if (x.startsWith("|error")) {
+                    this.emit("error");
                 }
-            }
-            if (parameters !== 0) {
-                tempParameters.push(message);
-                commands.push(new messageWithParams(tempCommand, tempParameters));
-            }
-            else {
-                commands.push(new messageWithParams(message));
-            }
-
-            for (let x of commands) {
-                console.log(x)
-                console.log(this.room)
-                if (x.command === "challstr") {
-                    this.emit("challstr", x.parameters[0] + '|' + x.parameters[1]);
+                else if (x.startsWith("|faint|" + this.side)) {
+                    this.emit("faint")
                 }
-                else if (x.command === "request") {
-                    this.emit("request", x.parameters[0]);
+                else if (x.startsWith("|win|")) {
+                    this.emit("win")
                 }
-                else if (x.command === "faint") {
-                    this.emit("faint");
+                else if (x.startsWith("|loss|")) {
+                    this.emit("less")
                 }
             }
 

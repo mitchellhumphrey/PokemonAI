@@ -7,7 +7,8 @@
     "test": "npm run build && jest",
     "build": "node-gyp rebuild",
     "clean": "node-gyp clean",
-    "start": "npm run build && node index.js"
+    "start": "npm run build && node index.js",
+    "nobuild": "node index.js"
   },
   "author": "",
   "license": "ISC",

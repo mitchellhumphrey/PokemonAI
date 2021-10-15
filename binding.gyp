@@ -2,7 +2,7 @@
     "targets": [{
         "target_name": "testaddon",
         "cflags!": [ "-fno-exceptions" ],
-        "cflags_cc!": [ "-fno-exceptions" ],
+        "cflags_cc!": [ "-fno-exceptions", "-std=c++17" ],
         "sources": [
             "cpp/main.cpp",
             "cpp/example.h",
